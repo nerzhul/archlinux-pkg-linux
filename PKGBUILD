@@ -1,7 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-nrz
-pkgver=6.9.7.arch1
+pkgver=6.9.12.arch1
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
@@ -27,7 +27,7 @@ _srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
-  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
+#  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
   config  # the main kernel config file
 )
 validpgpkeys=(
@@ -36,16 +36,16 @@ validpgpkeys=(
   83BC8889351B5DEBBB68416EB8AC08600F108CDF  # Jan Alexander Steffens (heftig)
 )
 # https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
-sha256sums=('e4f588cd91eef9d461e5e14fdf9415feff8a72fbcc274089a0f768a58de001f8'
+sha256sums=('5ae7cc4e0e2f6b9ba630f643985ba0522c7d5e5b9571ba478a3cb513edd4cf22'
             'SKIP'
-            '64c589c6f1177bcbaf7f76ab54aa51785f96bf2e32d23407f871b0348388c85a'
-            'SKIP'
-            '377877445a9f8bfc386bf8ca8fa41a808237285edfbbaaf834adcad9e8750e6c')
-b2sums=('67b49d64f8ceba02dc1eade59991c683c81a533eec7105466d235898de2cee692aa5730d538a33bb04f1b0260e9dcbf63b332ddfab42a7d44425c9a9d8410d77'
+#            'f67882ce44c822088fbbebaf2d5958377b1c34254547eca5719f19aa2eff1fd7'
+#            'SKIP'
+            '03556604f364e571d99a53c1346d684e803904132a8b5fb19f157b041a01403f')
+b2sums=('230b834983401ae17dc12de045c4a6e9dae59157fa0af940cf58cdd673f3e3cb348c925470539abc05cff18853ab9b1e63ff66ff03f82229e1c85b83c6cbde95'
         'SKIP'
-        '66b713330a9fada066b7fc79b52d3f508a5bf069b32fe301c4ffbe444c25971e0f338bc8fdef6c237b6899448a2501872f69a4abb8ac4c81eefeedd65933c252'
-        'SKIP'
-        'd79621cc9350cd7bbb5155863c40524482e9faa3d41a07a4b142b28dde24a9923c289d3f3718918826af9d51cddd53e256c1472149cdd7c1012e9d7aabc039d8')
+ #       '76851b4d78c8c485270e83c7dd2cc744ae3ec26cb4ec0d4a942d8d696c9dd1d0014b625f85549249a9e7da9f0b4cf6b5ff32487d0f0f3fdcbb02334ebdfb3585'
+ #       'SKIP'
+        'e139f5de551c9a03aebdda4af2bf8fac2b630f1e5c70a48febf071b906a588ea4c8ff2bb9c423889c619edb78bb65b7d1c02ece637f3c59845582a12911a7a92')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
