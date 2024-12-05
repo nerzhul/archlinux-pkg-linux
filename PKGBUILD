@@ -1,7 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-nrz
-pkgver=6.9.12.arch1
+pkgver=6.9.12.nrz1
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
