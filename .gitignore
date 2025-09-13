@@ -1,0 +1,4 @@
+*.tar.xz
+*.sign
+pkg/
+src/
