@@ -1,8 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
-pkgbase=linux-nrz
-pkgver=6.17.11.nrz1
-_zfsver="2.3.5"
+pkgbase=linux
+pkgver=6.17.9.arch1
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
@@ -22,6 +21,12 @@ makedepends=(
   tar
   xz
 
+  # htmldocs
+  graphviz
+  imagemagick
+  python-sphinx
+  python-yaml
+  texlive-latexextra
 )
 options=(
   !debug
@@ -31,9 +36,8 @@ _srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
-#  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
+  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
   config  # the main kernel config file
-  "https://github.com/openzfs/zfs/releases/download/zfs-${_zfsver}/zfs-${_zfsver}.tar.gz"
 )
 validpgpkeys=(
   ABAF11C65A2970B130ABE3C479BE3E4300411886  # Linus Torvalds
@@ -41,18 +45,16 @@ validpgpkeys=(
   83BC8889351B5DEBBB68416EB8AC08600F108CDF  # Jan Alexander Steffens (heftig)
 )
 # https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
-sha256sums=('934b18af0125f114907bad482d7c5a97d58038970b9dce6162318e920caf257e'
+sha256sums=('6d08803b953c509df48d44d3281ed392524321d8bb353eb21c0555790c8f8e06'
             'SKIP'
-#            'f67882ce44c822088fbbebaf2d5958377b1c34254547eca5719f19aa2eff1fd7'
-#            'SKIP'
-            '356b35880866f4a7f7117bb5a1262d4cbc8cc0fe56cf29dfd2568d64192bea80'
-            '326ae0cba8a615afa42c6891640e76acc4bd230f6d6ddec120c11e30b1392067')
-b2sums=('0ddb7b23343893f845ae2893cdc791b945f2a69a913faa1196d449067cee08c958106ab58079aed008f4b6c62eda9f55131e17f0ee836c60e2ff75eca66e767e'
+            'b69903227627710de809d81a4b2334f65d3d23e9b38b06e981b6e061b9a6f921'
+            'SKIP'
+            '2ff20dad1b55dac1a880e589a74b2345ba80493939f000edeae168be397fea41')
+b2sums=('1e8e226364a85f3fd66e51495a99a76e377389aa48c708953aaa28b6ec669f05aab6d240365965eec5643e2fa6aee15796005b2873e8fea748e432b1d799eabc'
         'SKIP'
- #       '76851b4d78c8c485270e83c7dd2cc744ae3ec26cb4ec0d4a942d8d696c9dd1d0014b625f85549249a9e7da9f0b4cf6b5ff32487d0f0f3fdcbb02334ebdfb3585'
- #       'SKIP'
-        '3bfef2a59d07f10e92c9123e814976cdc465852e6b0dc5fd223218f2d4c54c03a46d8dd9bd64393f47af496dedc535b26f5f7aa25df4e6e3bee209678cc716e6'
-        '4ae090c76e13f2d3d76e481b9950db1319534e47b357e4818bfc4db84cc0a5089de1e46319a36f02010ac27e3ab5cf74a56979b94864d38dcc41c86721841e54')
+        'eb8b5ba9f5c705bc70b9cce2a5bc894ceb4185445212846e977283f55d9fb52b77263b77c74b8773f509b28d39c51f3729a08e822e6e894cf8253d192bc79b3d'
+        'SKIP'
+        'ba6b2779e1c42c4c65ee4d81adc29f9f4e6416b438345c493886d2418c913bb2d83de2a9aa2ff5e2a6f09a73aa2d7abd3ae512cf37b93f31c30744f898ce228f')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
@@ -75,9 +77,6 @@ prepare() {
     patch -Np1 < "../$src"
   done
 
-  echo "Setting arch to x86-64-v2"
-  sed -i 's/march=x86-64 /march=x86-64-v2 /' arch/x86/Makefile
-
   echo "Setting config..."
   cp ../config .config
   make olddefconfig
@@ -90,7 +89,8 @@ prepare() {
 build() {
   cd $_srcname
   make all
-  make KCFLAGS="-march=x86-64-v2 -mtune=generic" -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+  make htmldocs SPHINXOPTS=-QT
 }
 
 _package() {
@@ -163,6 +163,15 @@ _package-headers() {
 
   install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
   install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
+
+  # https://bugs.archlinux.org/task/13146
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+
+  # https://bugs.archlinux.org/task/20402
+  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
   # https://bugs.archlinux.org/task/71392
   install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
 
@@ -170,8 +179,8 @@ _package-headers() {
   find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
 
   echo "Installing Rust files..."
-  #install -Dt "$builddir/rust" -m644 rust/*.rmeta
-  #install -Dt "$builddir/rust" rust/*.so
+  install -Dt "$builddir/rust" -m644 rust/*.rmeta
+  install -Dt "$builddir/rust" rust/*.so
 
   echo "Installing unstripped VDSO..."
   make INSTALL_MOD_PATH="$pkgdir/usr" vdso_install \
@@ -217,9 +226,29 @@ _package-headers() {
   ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
 }
 
+_package-docs() {
+  pkgdesc="Documentation for the $pkgdesc kernel"
+
+  cd $_srcname
+  local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
+
+  echo "Installing documentation..."
+  local src dst
+  while read -rd '' src; do
+    dst="${src#Documentation/}"
+    dst="$builddir/Documentation/${dst#output/}"
+    install -Dm644 "$src" "$dst"
+  done < <(find Documentation -name '.*' -prune -o ! -type d -print0)
+
+  echo "Adding symlink..."
+  mkdir -p "$pkgdir/usr/share/doc"
+  ln -sr "$builddir/Documentation" "$pkgdir/usr/share/doc/$pkgbase"
+}
+
 pkgname=(
   "$pkgbase"
   "$pkgbase-headers"
+  "$pkgbase-docs"
 )
 for _p in "${pkgname[@]}"; do
   eval "package_$_p() {
