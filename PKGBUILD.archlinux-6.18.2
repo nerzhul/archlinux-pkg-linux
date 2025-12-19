@@ -1,8 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
-pkgbase=linux-nrz
-pkgver=6.18.2.nrz1
-_zfsver="2.4.0"
+pkgbase=linux
+pkgver=6.18.2.arch2
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
@@ -22,6 +21,12 @@ makedepends=(
   tar
   xz
 
+  # htmldocs
+  graphviz
+  imagemagick
+  python-sphinx
+  python-yaml
+  texlive-latexextra
 )
 options=(
   !debug
@@ -31,9 +36,8 @@ _srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
-#  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
+  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
   config  # the main kernel config file
-  "https://github.com/openzfs/zfs/releases/download/zfs-${_zfsver}/zfs-${_zfsver}.tar.gz"
 )
 validpgpkeys=(
   ABAF11C65A2970B130ABE3C479BE3E4300411886  # Linus Torvalds
@@ -43,16 +47,14 @@ validpgpkeys=(
 # https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
 sha256sums=('558c6bbab749492b34f99827fe807b0039a744693c21d3a7e03b3a48edaab96a'
             'SKIP'
-#            'f67882ce44c822088fbbebaf2d5958377b1c34254547eca5719f19aa2eff1fd7'
-#            'SKIP'
-            'dd6cde65f20b832c81cffda37866a619b201ae4d3989bc127a551317eb9dcef9'
-            '7bdf13de0a71d95554c0e3e47d5e8f50786c30d4f4b63b7c593b1d11af75c9ee')
+            '2c66168bb8afe4ba64d087af5a6228ae8ac906200e186dfedb4199fa06f2c6c0'
+            'SKIP'
+            'd0ce1ee11ca0bc6a817c3c17a2651076409bd9fd6c0ab9e744aae2131ab654ce')
 b2sums=('2e5cae5fe963cf25344ccfe9426d2edab2583b1bb206f6551d60177777595d4c19200e5e3c35ca41b574d25e8fa49013ea086efe05078e7ec2203c77ea420d51'
         'SKIP'
- #       '76851b4d78c8c485270e83c7dd2cc744ae3ec26cb4ec0d4a942d8d696c9dd1d0014b625f85549249a9e7da9f0b4cf6b5ff32487d0f0f3fdcbb02334ebdfb3585'
- #       'SKIP'
-        '7c18ef8b7fd9a2979e196b5f7e65dd85a69cc1515b04a20b179f533ee2e53fd48fd58fdd446161194ba31c1209c07c983af8f5c29b6239b1cf5fee37c6b03a3a'
-        'f98d940925ba74222ad4976af767bc5c40bdd29bbc0c5eca6ba43a6109f35e773260e946ef01a556732caf44f968e89d296c925602e252af1ece9597753f24d5')
+        '97affbffdbac53ed469fcbcbd7c822c0f46860cc740dfb0d40ead77fde7a4559ed982774696bba2c91150de1bdf241b24804b7c623df55bc3348b11e47c6553a'
+        'SKIP'
+        'a00e0979e9a77c7e51bd18b3106c7231898c29e2e17d8c21510de7cd6d14ea4487171e4110c230f5537b846798ebdba2d01ecb07d8782abdad5b9814502944af')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
@@ -75,9 +77,6 @@ prepare() {
     patch -Np1 < "../$src"
   done
 
-  echo "Setting arch to x86-64-v2"
-  sed -i 's/march=x86-64 /march=x86-64-v2 /' arch/x86/Makefile
-
   echo "Setting config..."
   cp ../config .config
   make olddefconfig
@@ -90,7 +89,8 @@ prepare() {
 build() {
   cd $_srcname
   make all
-  make KCFLAGS="-march=x86-64-v2 -mtune=generic" -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+  make htmldocs SPHINXOPTS=-QT
 }
 
 _package() {
@@ -163,6 +163,15 @@ _package-headers() {
 
   install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
   install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
+
+  # https://bugs.archlinux.org/task/13146
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+
+  # https://bugs.archlinux.org/task/20402
+  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
   # https://bugs.archlinux.org/task/71392
   install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
 
@@ -170,8 +179,8 @@ _package-headers() {
   find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
 
   echo "Installing Rust files..."
-  #install -Dt "$builddir/rust" -m644 rust/*.rmeta
-  #install -Dt "$builddir/rust" rust/*.so
+  install -Dt "$builddir/rust" -m644 rust/*.rmeta
+  install -Dt "$builddir/rust" rust/*.so
 
   echo "Installing unstripped VDSO..."
   make INSTALL_MOD_PATH="$pkgdir/usr" vdso_install \
@@ -217,9 +226,29 @@ _package-headers() {
   ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
 }
 
+_package-docs() {
+  pkgdesc="Documentation for the $pkgdesc kernel"
+
+  cd $_srcname
+  local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
+
+  echo "Installing documentation..."
+  local src dst
+  while read -rd '' src; do
+    dst="${src#Documentation/}"
+    dst="$builddir/Documentation/${dst#output/}"
+    install -Dm644 "$src" "$dst"
+  done < <(find Documentation -name '.*' -prune -o ! -type d -print0)
+
+  echo "Adding symlink..."
+  mkdir -p "$pkgdir/usr/share/doc"
+  ln -sr "$builddir/Documentation" "$pkgdir/usr/share/doc/$pkgbase"
+}
+
 pkgname=(
   "$pkgbase"
   "$pkgbase-headers"
+  "$pkgbase-docs"
 )
 for _p in "${pkgname[@]}"; do
   eval "package_$_p() {
