@@ -1,7 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-nrz
-pkgver=6.18.6.nrz1
+pkgver=6.18.7.nrz1
 _zfsver="2.4.0"
 pkgrel=1
 pkgdesc='Linux'
@@ -31,7 +31,7 @@ _srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
-#  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
+  #$url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
   config  # the main kernel config file
   "https://github.com/openzfs/zfs/releases/download/zfs-${_zfsver}/zfs-${_zfsver}.tar.gz"
 )
@@ -41,17 +41,17 @@ validpgpkeys=(
   83BC8889351B5DEBBB68416EB8AC08600F108CDF  # Jan Alexander Steffens (heftig)
 )
 # https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
-sha256sums=('472497197b2f68d4dbf1bc32cc6dc669ca220ff4c0eb0dc39a9cff9a88f9a31b'
+sha256sums=('b726a4d15cf9ae06219b56d87820776e34d89fbc137e55fb54a9b9c3015b8f1e'
             'SKIP'
-#            'f67882ce44c822088fbbebaf2d5958377b1c34254547eca5719f19aa2eff1fd7'
-#            'SKIP'
-            '750513304e9630431b92f4b3485e91960d114ad375b8fc541b631aef0839fdd9'
+            #'57c22879f2228398564091db2ec9b186acbd56dfb0e1072f83418bfdd3829aae'
+            #'SKIP'
+            '20e53594d5c296e3bf92378c87f60927e0535806df53ef53f64e0dce5f7d1801'
             '7bdf13de0a71d95554c0e3e47d5e8f50786c30d4f4b63b7c593b1d11af75c9ee')
-b2sums=('f56b4894cef3fdc24d963985d4f497d8a1fd80cae48197aabcf58038132c3c03da74537b47411aebc158483f08bad8200544103f31647b711acb59c4d652e387'
+b2sums=('3ad31b9b36ea2c8f865c87e63c97a4e7b6684abee35ae71d5838026de9f476edb4c847adab315235293c5f37f8f3b90799ae2b3d41915716710eae63acbf6863'
         'SKIP'
- #       '76851b4d78c8c485270e83c7dd2cc744ae3ec26cb4ec0d4a942d8d696c9dd1d0014b625f85549249a9e7da9f0b4cf6b5ff32487d0f0f3fdcbb02334ebdfb3585'
- #       'SKIP'
-        'c83fcacc22af8cda5641e7717b1da4a933675dd66c7e5c51f2f6aadb287aeedd281945b7921c3c0b0f9b2a091f12485c9161584dc6523555ee95e33e617d9941'
+        #'8ece2f1b2fc6530cdd65e597141550c184089a206b9aa49cb9e46d61d2e7cf9c3f07f35ed523670d892aa7e62626644a5b1e98dd9c6acd824cb7ad3254c17665'
+        #'SKIP'
+        '00886a5e14cf9811b0638923a81c56d4fc5e9d17f0f96668cf2b74478fddf9fd7d4f933febf5862b71bdc50e80bd8b30fd9623d96e098aa32274cd2662772e5f'
         'f98d940925ba74222ad4976af767bc5c40bdd29bbc0c5eca6ba43a6109f35e773260e946ef01a556732caf44f968e89d296c925602e252af1ece9597753f24d5')
 
 export KBUILD_BUILD_HOST=archlinux
