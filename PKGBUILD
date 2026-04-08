@@ -9,12 +9,16 @@ url='https://github.com/archlinux/linux'
 arch=(x86_64)
 license=(GPL-2.0-only)
 makedepends=(
+  autoconf
+  automake
   bc
   cpio
   gettext
   libelf
+  libtool
   pahole
   perl
+  pkgconf
   python
   rust
   rust-bindgen
@@ -91,6 +95,26 @@ build() {
   cd $_srcname
   make all
   make KCFLAGS="-march=x86-64-v2 -mtune=generic" -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+
+  cd "$srcdir"
+  rm -rf "build-zfs"
+  mkdir "build-zfs"
+  cd "build-zfs"
+
+  "$srcdir/zfs-${_zfsver}/autogen.sh"
+  "$srcdir/zfs-${_zfsver}/configure" \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --sbindir=/usr/bin \
+    --libdir=/usr/lib \
+    --datadir=/usr/share \
+    --includedir=/usr/include \
+    --with-udevdir=/usr/lib/udev \
+    --libexecdir=/usr/lib \
+    --with-config=kernel \
+    --with-linux="$srcdir/$_srcname" \
+    --with-linux-obj="$srcdir/$_srcname"
+  make
 }
 
 _package() {
@@ -217,11 +241,61 @@ _package-headers() {
   ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
 }
 
+package_zfs-linux-nrz() {
+  pkgdesc="OpenZFS kernel modules for the $pkgbase kernel"
+  license=(CDDL)
+  depends=(
+    kmod
+    "$pkgbase=$pkgver-$pkgrel"
+    "zfs-utils=${_zfsver}"
+  )
+  provides=(
+    zfs
+    spl
+  )
+  conflicts=(
+    spl-dkms
+    spl-dkms-git
+    zfs-dkms
+    zfs-dkms-git
+    zfs-dkms-rc
+  )
+
+  cd "$srcdir/build-zfs/module"
+  make DESTDIR="$pkgdir" INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 modules_install
+
+  rm -rf "$pkgdir/usr/src"
+}
+
+package_zfs-linux-nrz-headers() {
+  pkgdesc="OpenZFS build files for the $pkgbase kernel"
+  license=(CDDL)
+  depends=("$pkgbase-headers=$pkgver-$pkgrel")
+  provides=(
+    spl-headers
+    zfs-headers
+  )
+  conflicts=(
+    spl-headers
+    zfs-headers
+  )
+
+  cd "$srcdir/build-zfs"
+  make DESTDIR="$pkgdir" install
+
+  rm -rf "$pkgdir/lib"
+
+  sed -i "s|$srcdir||g" "$pkgdir/usr/src/zfs-${_zfsver}/$(<"$srcdir/$_srcname/version")/Module.symvers"
+}
+
 pkgname=(
   "$pkgbase"
   "$pkgbase-headers"
+  "zfs-linux-nrz"
+  "zfs-linux-nrz-headers"
 )
 for _p in "${pkgname[@]}"; do
+  [[ $_p == zfs-linux-nrz || $_p == zfs-linux-nrz-headers ]] && continue
   eval "package_$_p() {
     $(declare -f "_package${_p#$pkgbase}")
     _package${_p#$pkgbase}
