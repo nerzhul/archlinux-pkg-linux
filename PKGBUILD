@@ -1,8 +1,8 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-nrz
-pkgver=6.19.14.nrz1
-_zfsver="2.4.1"
+pkgver=7.0.6.nrz1
+_zfsver="2.4.2"
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
@@ -45,18 +45,18 @@ validpgpkeys=(
   83BC8889351B5DEBBB68416EB8AC08600F108CDF  # Jan Alexander Steffens (heftig)
 )
 # https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
-sha256sums=('cde8bf6739be4a0777fedbbba5330b8188c55680c45a922a4dfa289cbec6f185'
+sha256sums=('cba44440aa57affd7c21241dc5bc234b0df53c499f8ffc3ebc290dd3390a7523'
             'SKIP'
             #'57c22879f2228398564091db2ec9b186acbd56dfb0e1072f83418bfdd3829aae'
             #'SKIP'
             '31766d76d2384a385a4c30ccc894ad443065981e8c70ac6b70252ab3bf283f2d'
-            'c17b69770f0023154f578eb8c7536a70f07d6a3bb0bd38f04fa0e8811c3c1390')
-b2sums=('64c2a0003d8080f268772d36923ff6ef8b2d55320ea08b77ad39384c98c9a5c1a8e71425470619aa3aa4dda8941f46aa9da364748cfa8fd9f8507a5ddd7ac03a'
+            '7e260d0e6af295bea4c5e241cac0a1aef07b58d8dd8035f7898ade3b1bbec78f')
+b2sums=('0e8640c77249b251b22f162b8eb21d062308c4a5d16e3942882fbfbbb50a3ac981ad14db8e5612fb9e0a26f8f3a2c6bb07f0309e26ea59323430f780d22b2821'
         'SKIP'
         #'8ece2f1b2fc6530cdd65e597141550c184089a206b9aa49cb9e46d61d2e7cf9c3f07f35ed523670d892aa7e62626644a5b1e98dd9c6acd824cb7ad3254c17665'
         #'SKIP'
         'cf8a4ef80e29129cd4c5ddd43d3e03fe33c5dc71455abf9710b49434c2aef2463acd7351e1eb59e480d98df83d560a0fc4121bb4dc82758b5e70ac9e5497c6d5'
-        'dc7eedb989297ae13d42c1f7c3b55b393d47f1706a029c38801381675909069c6c2112ca545ac395cb2e7bcbaf225fa79982e3c6f3adeca0d30828b88da0f58b')
+        '265a711156f726ec6d14a20c26f435336ae37ff23de79d69ea05a55b1455e25b7f48774cd54c877c18a0be2be8249772e4138d1fc32c9d0918d8b27d300e48c1')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
